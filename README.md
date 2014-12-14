@@ -12,6 +12,12 @@ Uses [ghub.io](http://ghub.io) for all npm packages, and [Node docs](http://node
 
 #### Install
 
+Install from [Chrome Web Store](https://chrome.google.com/webstore/detail/github-nodejs-require-nav/ppkcefoejnbdgijdbbpnclfbnnfdfilj) or [get require-navigator.crx](https://github.com/lxe/require-navigator/raw/master/dist/require-navigator.crx)
+
+#### Uninstall
+
+Navigate to `chrome://extensions` and remove Require Navigator.
+
 #### Licesne
 
 MIT
