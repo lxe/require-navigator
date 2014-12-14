@@ -69,8 +69,6 @@ function registerInjector() {
 }
 
 function inject() {
-  console.log('injecting');
-
   var tokens = document.querySelectorAll('.blob-code.js-file-line .pl-s3');
 
   [].forEach.call(tokens, function(line) {
