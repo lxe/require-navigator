@@ -8,6 +8,8 @@ Uses [ghub.io](http://ghub.io) for all npm packages, and [Node docs](http://node
 
 #### Demo
 
+![](images/demo.gif)
+
 #### Install
 
 #### Licesne
