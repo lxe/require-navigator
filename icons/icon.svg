@@ -1,0 +1,7 @@
+<svg width="512" height="512" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="512" height="512"  fill="rgba(240, 219, 79, 1)"></rect>
+  <text x="180" y="410" fill="rgba(50, 51, 48, 1)"
+    style="font-family: Helvetica;
+           font-size: 256px;
+           font-weight: bold;">( )</text>
+</svg>
