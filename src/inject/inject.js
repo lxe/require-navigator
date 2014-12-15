@@ -74,6 +74,7 @@ function inject() {
   [].forEach.call(tokens, function(line) {
     if (line.innerHTML === 'require') {
       var pkgEl = line.nextSibling.nextSibling;
+      if (!pkgEl) return;
       var pkg = pkgEl.innerHTML.match(/span>([^<]+)/);
       if (!pkg || !pkg[1]) return; // continue if we have invalid input
       pkg = pkg[1];
