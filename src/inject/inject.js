@@ -41,14 +41,20 @@ var natives = [
   'zlib'
 ];
 
-chrome.extension.sendMessage({}, function(response) {
+function tryRegisterInjector() {
   var readyStateCheckInterval = setInterval(function() {
     if (document.readyState === 'complete') {
       clearInterval(readyStateCheckInterval);
       registerInjector();
     }
   }, 10);
-});
+}
+
+if (window.chrome) {
+  window.chrome.extension.sendMessage({}, tryRegisterInjector);
+} else {
+  tryRegisterInjector();
+}
 
 function registerInjector() {
   var target = document.querySelector('#js-repo-pjax-container');
