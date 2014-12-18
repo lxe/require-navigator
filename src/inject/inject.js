@@ -71,7 +71,7 @@ function registerInjector() {
 function inject() {
   var file = document.querySelector('.final-path');
 
-  if (file.innerHTML === 'package.json') {
+  if (file && file.innerHTML === 'package.json') {
     var tokens = document.querySelectorAll('.blob-code.js-file-line');
     var isPkg = false;
 
