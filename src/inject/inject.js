@@ -75,47 +75,76 @@ function registerInjector() {
 }
 
 function inject() {
-  var tokens = document.querySelectorAll('.blob-code.js-file-line .pl-s3');
+  var file = document.querySelector('.final-path');
 
-  [].forEach.call(tokens, function(line) {
-    if (line.innerHTML === 'require') {
-      var pkgEl = line.nextSibling.nextSibling;
-      if (!pkgEl) return;
-      var pkg = pkgEl.innerHTML.match(/span>([^<]+)/);
-      if (!pkg || !pkg[1]) return; // continue if we have invalid input
-      pkg = pkg[1];
+  if (file && file.innerHTML === 'package.json') {
+    var tokens = document.querySelectorAll('.blob-code.js-file-line');
+    var isPkg = false;
 
-      var url;
-      if (pkg.indexOf('.') === 0) {
-        url = pkg;
+    [].forEach.call(tokens, function(line) {
+      var pkgEl = line.querySelector('.pl-s1');
 
-        // check for lack of extension
-        var regex = /\.\w+$/i;
-        if (!pkg.match(regex)) {
-          // if there's no extension, do a HEAD request on the path
-          // we use a HEAD request so we don't fetch the whole page (faster, less bandwidth)
-          var xhr = new XMLHttpRequest();
-          xhr.open('HEAD', url, false); // would be nice to make this async
-          xhr.onreadystatechange = function () {
-            if (this.readyState === 4) {
-              if (this.status === 404) {
-                // if it doesn't exist, we'll assume it's a js file
-                url = pkg + '.js';
-              }
-            }
-          }
-          xhr.send();
-        }
-      } else if (natives.indexOf(pkg) >= 0) {
-        url = 'http://nodejs.org/api/' + pkg + '.html';
-      } else {
-        // split on `/` for cases like `require('foo/bar')`
-        url = 'http://ghub.io/' + pkg.split('/')[0];
+      if (!pkgEl) {
+        // no inner span means no dependency or end of list
+        isPkg = false;
+        return;
       }
 
-      pkgEl.innerHTML = pkgEl.innerHTML
-        .replace(pkg, '<a class="pl-pds" href="' +
-          url + '">' + pkg + '</a>');
-    }
-  });
+      if (!isPkg && line.innerText.match(/"(dev)?dependencies"\s*:/i)) {
+        // set isPkg flag if dependency list is found
+        isPkg = true;
+      } else if (isPkg) {
+        var pkg = pkgEl.innerText.replace(/"/g, '');
+        var url = 'http://ghub.io/' + pkg;
+        pkgEl.innerHTML = pkgEl.innerHTML
+          .replace(pkg, '<a class="pl-pds" href="' +
+            url + '">' + pkg + '</a>');
+      }
+    });
+
+  } else {
+    var tokens = document.querySelectorAll('.blob-code.js-file-line .pl-s3');
+
+    [].forEach.call(tokens, function(line) {
+      if (line.innerHTML === 'require') {
+        var pkgEl = line.nextSibling.nextSibling;
+        if (!pkgEl) return;
+        var pkg = pkgEl.innerHTML.match(/span>([^<]+)/);
+        if (!pkg || !pkg[1]) return; // continue if we have invalid input
+        pkg = pkg[1];
+
+        var url;
+        if (pkg.indexOf('.') === 0) {
+          url = pkg;
+
+          // check for lack of extension
+          var regex = /\.\w+$/i;
+          if (!pkg.match(regex)) {
+            // if there's no extension, do a HEAD request on the path
+            // we use a HEAD request so we don't fetch the whole page (faster, less bandwidth)
+            var xhr = new XMLHttpRequest();
+            xhr.open('HEAD', url, false); // would be nice to make this async
+            xhr.onreadystatechange = function () {
+              if (this.readyState === 4) {
+                if (this.status === 404) {
+                  // if it doesn't exist, we'll assume it's a js file
+                  url = pkg + '.js';
+                }
+              }
+            }
+            xhr.send();
+          }
+        } else if (natives.indexOf(pkg) >= 0) {
+          url = 'http://nodejs.org/api/' + pkg + '.html';
+        } else {
+          // split on `/` for cases like `require('foo/bar')`
+          url = 'http://ghub.io/' + pkg.split('/')[0];
+        }
+
+        pkgEl.innerHTML = pkgEl.innerHTML
+          .replace(pkg, '<a class="pl-pds" href="' +
+            url + '">' + pkg + '</a>');
+      }
+    });
+  }
 }
