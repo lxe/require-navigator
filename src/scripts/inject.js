@@ -1,76 +1,45 @@
-var natives = [
-  '_debugger',
-  '_linklist',
-  'assert',
-  'buffer',
-  'child_process',
-  'console',
-  'constants',
-  'crypto',
-  'cluster',
-  'dgram',
-  'dns',
-  'domain',
-  'events',
-  'freelist',
-  'fs',
-  'http',
-  'https',
-  'module',
-  'net',
-  'os',
-  'path',
-  'punycode',
-  'querystring',
-  'readline',
-  'repl',
-  'stream',
-  '_stream_readable',
-  '_stream_writable',
-  '_stream_duplex',
-  '_stream_transform',
-  '_stream_passthrough',
-  'string_decoder',
-  'sys',
-  'timers',
-  'tls',
-  'tty',
-  'url',
-  'util',
-  'vm',
-  'zlib'
-];
+'use strict';
 
-function tryRegisterInjector() {
+var natives = require('./natives');
+
+// For non-chrome browsers, register immediately
+if (!window.chrome) return tryRegisterInjector();
+
+// Otherwise, attempt to register the injector
+// at an interval, until it suceeds (From http://extensionizr.com/)
+window.chrome.extension.sendMessage({ }, function tryRegisterInjector() {
   var readyStateCheckInterval = setInterval(function() {
     if (document.readyState === 'complete') {
       clearInterval(readyStateCheckInterval);
       registerInjector();
     }
   }, 10);
-}
-
-if (window.chrome) {
-  window.chrome.extension.sendMessage({}, tryRegisterInjector);
-} else {
-  tryRegisterInjector();
-}
+});
 
 function registerInjector() {
-  var target = document.querySelector('#js-repo-pjax-container');
 
-  new MutationObserver(function(mutations) {
-    mutations.forEach(function(m) {
+  // Start observing DOM mutation events on the pjax conteiner.
+  // GitHub uses pjax to load code pages, so we need to detect
+  // when new content is loaded, and re-run the injector logic.
+  var $target = document.getElementById('#js-repo-pjax-container');
+  new MutationObserver(function onEvents(mutations) {
+    for (var i = 0; i < mutations.length; i++) {
+      // Only need to detect observe the childList mutation
+      // when content (nodes) have been added, and
+      // forget about the rest.
       if (m.type === 'childList' && m.addedNodes.length) {
         inject();
+        break;
       }
-    });
-  }).observe(target, {
+    }
+  }).observe($target, {
     attributes:    false,
     childList:     true,
     characterData: false
   });
 
+  // Inject on the page load, as some pages
+  // don't use pushState ajax loading.
   inject();
 }
 

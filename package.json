@@ -1,0 +1,30 @@
+{
+  "name": "require-navigator",
+  "version": "0.2.0",
+  "description": "Chrome extension that makes all node.js require()s in Github source pages clickable",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test",
+    "build": "node build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lxe/require-navigator.git"
+  },
+  "keywords": [
+    "chrome",
+    "extension",
+    "require",
+    "navigator",
+    "github"
+  ],
+  "author": "Aleksey Smolenchuk <lxe@lxe.co>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lxe/require-navigator/issues"
+  },
+  "homepage": "https://github.com/lxe/require-navigator",
+  "devDependencies": {
+    "process": "^0.10.0"
+  }
+}
