@@ -18,7 +18,7 @@ Install from [Chrome Web Store](https://chrome.google.com/webstore/detail/github
 
 Navigate to `chrome://extensions` and remove Require Navigator.
 
-#### Licesne
+#### License
 
 MIT
 
