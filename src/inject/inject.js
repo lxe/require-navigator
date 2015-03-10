@@ -120,8 +120,8 @@ function inject() {
             url = pkg;
 
             // check for lack of extension
-            var regex = /\.\w+$/i;
-            if (!pkg.match(regex)) {
+            var ext = /.+(\.\w+)$/;
+            if (!pkg.match(ext)) {
               // if there's no extension, do a HEAD request on the path
               // we use a HEAD request so we don't fetch the whole page (faster, less bandwidth)
               var xhr = new XMLHttpRequest();
@@ -129,8 +129,8 @@ function inject() {
               xhr.onreadystatechange = function () {
                 if (this.readyState === 4) {
                   if (this.status === 404) {
-                    // if it doesn't exist, we'll assume it's a js file
-                    url = pkg + '.js';
+                    // if it doesn't exist, we'll assume it has the same file extension
+                    url = pkg + ((location.pathname.match(ext) || [])[1] || '.js')
                   }
                 }
               }
