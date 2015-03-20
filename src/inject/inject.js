@@ -92,7 +92,7 @@ function inject() {
           return;
         }
 
-        if (!isPkg && line.innerText.match(/"(dev)?dependencies"\s*:/i)) {
+        if (!isPkg && line.innerText.match(/"(dev|peer|optional)?dependencies"\s*:/i)) {
           // set isPkg flag if dependency list is found
           isPkg = true;
         } else if (isPkg) {
