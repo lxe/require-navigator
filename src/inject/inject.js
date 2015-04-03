@@ -84,7 +84,7 @@ function inject() {
       var isPkg = false;
 
       [].forEach.call(tokens, function(line) {
-        var pkgEl = line.querySelector('.pl-s1');
+        var pkgEl = line.querySelector('.pl-s');
 
         if (!pkgEl) {
           // no inner span means no dependency or end of list
@@ -105,11 +105,11 @@ function inject() {
       });
 
     } else {
-      var tokens = document.querySelectorAll('.blob-code.js-file-line .pl-s3');
+      var tokens = document.querySelectorAll('.blob-code.js-file-line');
 
       [].forEach.call(tokens, function(line) {
-        if (line.innerHTML === 'require') {
-          var pkgEl = line.nextSibling.nextSibling;
+        if (line.innerHTML.indexOf('require') > -1) {
+          var pkgEl = line.querySelector('.pl-s');
           if (!pkgEl) return;
           var pkg = pkgEl.innerHTML.match(/span>([^<]+)/);
           if (!pkg || !pkg[1]) return; // continue if we have invalid input
