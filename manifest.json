@@ -1,6 +1,6 @@
 {
   "name": "Github Node.js require() navigator",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "manifest_version": 2,
   "description": "Makes all Node.js require()s in Github source pages clickable.",
   "homepage_url": "https://github.com/lxe/require-navigator",
