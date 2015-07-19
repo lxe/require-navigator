@@ -41,6 +41,15 @@ var natives = [
   'zlib'
 ];
 
+var config = {
+  extensions: [
+    'js',
+    'ts',
+    'coffee',
+    'json'
+  ]
+};
+
 function tryRegisterInjector() {
   var readyStateCheckInterval = setInterval(function() {
     if (document.readyState === 'complete') {
@@ -52,6 +61,14 @@ function tryRegisterInjector() {
 
 if (window.chrome) {
   window.chrome.extension.sendMessage({}, tryRegisterInjector);
+} else if (window.safari) {
+  window.safari.self.addEventListener("message", function (msgEvent) {
+    if (msgEvent.name === "afterLoaded") {
+      config.extensions = msgEvent.message.settings.extensions,
+      registerInjector();
+    }
+  }, false);
+  safari.self.tab.dispatchMessage("loaded", null);
 } else {
   tryRegisterInjector();
 }
@@ -72,6 +89,30 @@ function registerInjector() {
   });
 
   inject();
+}
+
+function qualifyURL(url) {
+  var a = document.createElement('a');
+  a.href = url;
+  return a.href;
+}
+
+function xhrPromise(method, url) {
+  return new Promise(function (resolve, reject) {
+    var xhr = new XMLHttpRequest();
+    xhr.open(method, url);
+    xhr.onreadystatechange = function () {
+      if (this.readyState === 4) {
+        resolve({
+          status: this.status,
+          method: method,
+          url: url,
+          responseText: this.responseText
+        });
+      }
+    }
+    xhr.send();
+  });
 }
 
 function inject() {
@@ -124,17 +165,43 @@ function inject() {
             if (!pkg.match(regex)) {
               // if there's no extension, do a HEAD request on the path
               // we use a HEAD request so we don't fetch the whole page (faster, less bandwidth)
-              var xhr = new XMLHttpRequest();
-              xhr.open('HEAD', url, false); // would be nice to make this async
-              xhr.onreadystatechange = function () {
-                if (this.readyState === 4) {
-                  if (this.status === 404) {
-                    // if it doesn't exist, we'll assume it's a js file
-                    url = pkg + '.js';
-                  }
-                }
+              var urls = [url]; // Always try extensionless (unlikely to work, but maybe)
+              var extMatch;
+              if ((extMatch = location.pathname.match(ext))) {
+                urls.push(pkg + extMatch[1]); // If the current page has an extension try that
               }
-              xhr.send();
+              config.extensions.forEach(function (extension) {
+                urls.push(pkg + '.' + extension); // Try all additional extensions the user has configured
+              });
+              Promise.all(urls.map(function (url) {
+                return xhrPromise('HEAD', url);
+              })).then(function (requests) {
+                var request = requests.find(function (request) {
+                  return request.status < 300;
+                });
+                if (request) {
+                  url = request.url;
+                } else {
+                  var html = [].concat([
+                    '<html>',
+                      '<body>',
+                        '<p>Could not find a url for ' + pkg + ', urls that were attempted:</p>',
+                        '<ul>',
+                  ], urls.map(function (url) {
+                          return '<li><a href=&quot;' + qualifyURL(url) + '&quot;>' + qualifyURL(url) + '</a></li>'
+                  }), [
+                        '</ul>',
+                      '</body>',
+                    '</html>'
+                  ]).join('');
+
+                  var url = 'data:text/html,' + html;
+                }
+                pkgEl.innerHTML = pkgEl.innerHTML
+                  .replace(pkg, '<a class="pl-pds require-navigator" href="' +
+                    url + '">' + pkg + '</a>');
+              });
+              return;
             }
           } else if (natives.indexOf(pkg) >= 0) {
             url = 'http://nodejs.org/api/' + pkg + '.html';
