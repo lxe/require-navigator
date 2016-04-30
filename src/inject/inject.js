@@ -148,6 +148,34 @@ function inject() {
               url + '">' + pkg + '</a>');
         }
       });
+
+      var tokens = document.querySelectorAll('.markdown-body .highlight-js pre');
+
+      [].forEach.call(tokens, function(code) {
+        code.innerHTML.split('\n').forEach(function (line) {
+          if (line.indexOf('require') > -1) {
+            var m = line.match(/require[^\(]+\([^\(]+span>([^<]+)<span[^\)]+\)/);
+            if (!m || !m[1]) return; // continue if we have invalid input
+            var req = m[0];
+            var pkg = m[1];
+
+            var url;
+            if (pkg.indexOf('.') === 0) {
+              // Ignore relative requires here, unlikely to be able to resolve them
+              return;
+            } else if (natives.indexOf(pkg) >= 0) {
+              url = 'http://nodejs.org/api/' + pkg + '.html';
+            } else {
+              // split on `/` for cases like `require('foo/bar')`
+              url = 'http://ghub.io/' + pkg.split('/')[0];
+            }
+
+            code.innerHTML = code.innerHTML
+              .replace(req, req.replace(pkg, '<a class="pl-pds require-navigator" href="' +
+                url + '">' + pkg + '</a>'));
+          }
+        });
+      });
     }
   }
 }
