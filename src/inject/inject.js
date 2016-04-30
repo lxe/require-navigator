@@ -108,7 +108,7 @@ function inject() {
       var tokens = document.querySelectorAll('.blob-code.js-file-line');
 
       [].forEach.call(tokens, function(line) {
-        if (line.innerHTML.indexOf('require') > -1) {
+        if (line.innerHTML.match(/require|from/)) {
           var pkgEl = line.querySelector('.pl-s');
           if (!pkgEl) return;
           var pkg = pkgEl.innerHTML.match(/span>([^<]+)/);
