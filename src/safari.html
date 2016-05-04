@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>require navigator</title>
+    <script type="text/javascript">
+      safari.application.addEventListener("message", function (msgEvent) {
+        if (msgEvent.name === "loaded") {
+          msgEvent.target.page.dispatchMessage("afterLoaded", {
+            settings: {
+              extensions: safari.extension.settings.extensions.split(',').filter(function (ext) { return !!ext; })
+            }
+          });
+        }
+      }, false);
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
