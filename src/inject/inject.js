@@ -105,7 +105,7 @@ function inject() {
       });
 
     } else {
-      var tokens = document.querySelectorAll('.blob-code.js-file-line .pl-c1');
+      var tokens = document.querySelectorAll('.blob-code.js-file-line');
 
       [].forEach.call(tokens, function(line) {
         if (line.innerHTML.match(/require|from/)) {
